@@ -1,8 +1,11 @@
 from fastapi import FastAPI, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from app.llm.ollama_client import generate_response
 import os
 from pathlib import Path
 import time
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI(title="Audio Processing API")
 
@@ -37,7 +40,7 @@ async def process_audio(file: UploadFile):
 
         # Ленивая загрузка модулей для экономии памяти
         from app.asr.whisper import transcribe_audio
-        from app.llm.openai_client import generate_response
+        from app.llm.ollama_client import generate_response
 
         text = transcribe_audio(str(temp_path))
         response = generate_response(text)
@@ -58,3 +61,14 @@ async def process_audio(file: UploadFile):
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "environment": "codespaces"}
+
+@app.get("/")
+async def root():
+    return {
+        "message": "Audio Processing API",
+        "endpoints": {
+            "process_audio": "/api/process_audio",
+            "docs": "/docs",
+            "health": "/health"
+        }
+    }

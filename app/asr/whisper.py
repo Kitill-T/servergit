@@ -1,16 +1,15 @@
 import whisper
+model = whisper.load_model("tiny")
 import os
 from typing import Optional
 
-_model = None
-
 def load_model():
-    global _model
-    if _model is None:
+    global model
+    if model is None:
         model_name = os.getenv("WHISPER_MODEL", "tiny")
         print(f"Loading Whisper model: {model_name}")
-        _model = whisper.load_model(model_name)
-    return _model
+        model = whisper.load_model(model_name)
+    return model
 
 def transcribe_audio(audio_path: str) -> Optional[str]:
     try:
